@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillSync AI - Analytics</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#0A0F1F;
+color:white;
+padding:30px;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+}
+
+h1{
+text-align:center;
+color:#00D9FF;
+margin-bottom:30px;
+}
+
+.card{
+background:#121A2A;
+padding:25px;
+border-radius:15px;
+margin-bottom:20px;
+box-shadow:0 0 10px rgba(0,217,255,0.15);
+}
+
+.card h2{
+color:#00D9FF;
+margin-bottom:15px;
+}
+
+select,
+textarea{
+width:100%;
+padding:15px;
+border:none;
+border-radius:10px;
+background:#1A2332;
+color:white;
+font-size:16px;
+margin-bottom:15px;
+}
+
+textarea{
+height:120px;
+resize:none;
+}
+
+button{
+background:#00D9FF;
+color:black;
+border:none;
+padding:15px 30px;
+border-radius:10px;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+ul{
+padding-left:20px;
+}
+
+li{
+margin-bottom:8px;
+}
+
+.percentage{
+font-size:60px;
+font-weight:bold;
+text-align:center;
+color:#00D9FF;
+}
+
+.match{
+color:#00ff88;
+}
+
+.missing{
+color:#ff5b5b;
+}
+
+.ready{
+color:#00ff88;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+}
+
+.medium{
+color:#ffcc00;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+}
+
+.low{
+color:#ff5b5b;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+}
+
+@media(max-width:768px){
+.grid{
+grid-template-columns:1fr;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Skill Gap Analysis</h1>
+
+<div class="card">
+
+<h2>Enter Your Details</h2>
+
+<select id="department">
+<option value="">Select Department</option>
+<option>Mechatronics Engineering</option>
+<option>Computer Science Engineering</option>
+<option>Information Technology</option>
+<option>Artificial Intelligence & Data Science</option>
+<option>Artificial Intelligence & Machine Learning</option>
+<option>Electronics & Communication Engineering</option>
+<option>Electrical & Electronics Engineering</option>
+<option>Mechanical Engineering</option>
+<option>Civil Engineering</option>
+<option>Automobile Engineering</option>
+<option>Biomedical Engineering</option>
+<option>Aeronautical Engineering</option>
+<option>Aerospace Engineering</option>
+<option>Chemical Engineering</option>
+<option>Robotics & Automation</option>
+</select>
+
+<textarea
+id="studentSkills"
+placeholder="Enter your skills separated by commas. Example: Python, CAD, IoT, Robotics">
+</textarea>
+
+<button onclick="analyzeSkills()">
+Analyze Skills
+</button>
+
+</div>
+
+<div id="resultSection" style="display:none;">
+
+<div class="card">
+<h2>Skill Match Percentage</h2>
+<div id="percentage" class="percentage"></div>
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h2>Industry Required Skills</h2>
+<ul id="industrySkills"></ul>
+</div>
+
+<div class="card">
+<h2>Matched Skills</h2>
+<ul id="matchedSkills"></ul>
+</div>
+
+</div>
+
+<div class="card">
+<h2>Missing Skills</h2>
+<ul id="missingSkills"></ul>
+</div>
+
+<div class="card">
+<h2>Industry Readiness</h2>
+<div id="readiness"></div>
+</div>
+
+<div class="card">
+<h2>Recommended Skills To Learn</h2>
+<ul id="recommendations"></ul>
+</div>
+
+<div class="card">
+<h2>Suggested Career Roles</h2>
+<ul id="careers"></ul>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const industryRequirements = {
+
+"Mechatronics Engineering":{
+skills:["python","cad","matlab","plc","robotics","iot","embedded systems"],
+careers:["Robotics Engineer","Automation Engineer","IoT Engineer","Embedded Engineer"]
+},
+
+"Computer Science Engineering":{
+skills:["python","java","c++","dbms","data structures","web development"],
+careers:["Software Developer","Full Stack Developer","Backend Developer"]
+},
+
+"Information Technology":{
+skills:["networking","sql","cloud computing","cyber security","python"],
+careers:["Cloud Engineer","Cyber Security Analyst","System Administrator"]
+},
+
+"Artificial Intelligence & Data Science":{
+skills:["python","machine learning","deep learning","sql","power bi"],
+careers:["Data Scientist","ML Engineer","Data Analyst"]
+},
+
+"Artificial Intelligence & Machine Learning":{
+skills:["python","machine learning","deep learning","tensorflow","computer vision"],
+careers:["AI Engineer","ML Engineer","Computer Vision Engineer"]
+},
+
+"Electronics & Communication Engineering":{
+skills:["embedded systems","iot","vlsi","pcb design","microcontrollers"],
+careers:["Embedded Engineer","VLSI Engineer","IoT Engineer"]
+},
+
+"Electrical & Electronics Engineering":{
+skills:["plc","scada","control systems","power electronics","matlab"],
+careers:["Automation Engineer","Control Engineer","Electrical Design Engineer"]
+},
+
+"Mechanical Engineering":{
+skills:["cad","solidworks","ansys","automation","cnc"],
+careers:["Design Engineer","Production Engineer","Automation Engineer"]
+},
+
+"Civil Engineering":{
+skills:["autocad","staad pro","surveying","construction management"],
+careers:["Site Engineer","Structural Engineer","Project Engineer"]
+},
+
+"Automobile Engineering":{
+skills:["cad","electric vehicles","vehicle dynamics","engine systems"],
+careers:["Automobile Engineer","EV Engineer","Vehicle Design Engineer"]
+},
+
+"Biomedical Engineering":{
+skills:["medical instrumentation","embedded systems","signal processing"],
+careers:["Biomedical Engineer","Medical Device Engineer"]
+},
+
+"Aeronautical Engineering":{
+skills:["aerodynamics","cad","ansys","propulsion systems"],
+careers:["Aircraft Design Engineer","Aerodynamics Engineer"]
+},
+
+"Aerospace Engineering":{
+skills:["matlab","cad","control systems","space technology"],
+careers:["Aerospace Engineer","Control Systems Engineer"]
+},
+
+"Chemical Engineering":{
+skills:["process control","thermodynamics","safety engineering"],
+careers:["Process Engineer","Plant Engineer"]
+},
+
+"Robotics & Automation":{
+skills:["robotics","ros","python","plc","iot"],
+careers:["Robotics Engineer","Automation Engineer","ROS Developer"]
+}
+
+};
+
+function analyzeSkills(){
+
+document.getElementById("industrySkills").innerHTML="";
+document.getElementById("matchedSkills").innerHTML="";
+document.getElementById("missingSkills").innerHTML="";
+document.getElementById("recommendations").innerHTML="";
+document.getElementById("careers").innerHTML="";
+
+let department=document.getElementById("department").value;
+
+let studentSkills=document.getElementById("studentSkills")
+.value
+.toLowerCase()
+.split(",")
+.map(skill=>skill.trim());
+
+if(department===""){
+alert("Please select a department");
+return;
+}
+
+const deptData=industryRequirements[department];
+
+let matched=[];
+let missing=[];
+
+deptData.skills.forEach(skill=>{
+
+document.getElementById("industrySkills").innerHTML +=
+`<li>${skill}</li>`;
+
+if(studentSkills.includes(skill)){
+
+matched.push(skill);
+
+document.getElementById("matchedSkills").innerHTML +=
+`<li class="match">✓ ${skill}</li>`;
+
+}else{
+
+missing.push(skill);
+
+document.getElementById("missingSkills").innerHTML +=
+`<li class="missing">✗ ${skill}</li>`;
+
+document.getElementById("recommendations").innerHTML +=
+`<li>Learn ${skill}</li>`;
+}
+
+});
+
+let percentage=Math.round(
+(matched.length/deptData.skills.length)*100
+);
+
+document.getElementById("percentage").innerHTML=
+percentage+"%";
+
+if(percentage>=80){
+
+document.getElementById("readiness").innerHTML=
+'<div class="ready">Industry Ready</div>';
+
+}
+else if(percentage>=50){
+
+document.getElementById("readiness").innerHTML=
+'<div class="medium">Moderately Ready</div>';
+
+}
+else{
+
+document.getElementById("readiness").innerHTML=
+'<div class="low">Needs Skill Development</div>';
+
+}
+
+deptData.careers.forEach(role=>{
+
+document.getElementById("careers").innerHTML+=
+`<li>${role}</li>`;
+
+});
+
+document.getElementById("resultSection").style.display="block";
+
+}
+
+</script>
+
+</body>
+</html>
